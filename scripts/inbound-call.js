@@ -7,9 +7,9 @@ async function makeInboundCall() {
   const VoiceResponse = require('twilio').twiml.VoiceResponse;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
-  
+
   const client = require('twilio')(accountSid, authToken);
-  
+
   let twiml = new VoiceResponse();
   twiml.pause({ length: 10 });
   twiml.say('Which models of airpods do you have available right now?');
@@ -17,7 +17,7 @@ async function makeInboundCall() {
   twiml.hangup();
 
   console.log(twiml.toString());
-  
+
   await client.calls
     .create({
       twiml: twiml.toString(),

@@ -24,11 +24,11 @@ class GptService extends EventEmitter {
 
   // Add the callSid to the chat context in case
   // ChatGPT decides to transfer the call.
-  setCallSid (callSid) {
+  setCallSid(callSid) {
     this.userContext.push({ 'role': 'system', 'content': `callSid: ${callSid}` });
   }
 
-  validateFunctionArgs (args) {
+  validateFunctionArgs(args) {
     try {
       return JSON.parse(args);
     } catch (error) {
@@ -53,7 +53,7 @@ class GptService extends EventEmitter {
 
     // Step 1: Send user transcription to Chat GPT
     const stream = await this.openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-4o-mini',
       messages: this.userContext,
       tools: tools,
       stream: true,
@@ -94,7 +94,7 @@ class GptService extends EventEmitter {
 
         const functionToCall = availableFunctions[functionName];
         const validatedArgs = this.validateFunctionArgs(functionArgs);
-        
+
         // Say a pre-configured message from the function manifest
         // before running the function.
         const toolData = tools.find(tool => tool.function.name === functionName);
@@ -109,7 +109,7 @@ class GptService extends EventEmitter {
 
         // Step 4: send the info on the function call and function response to GPT
         this.updateUserContext(functionName, 'function', functionResponse);
-        
+
         // call the completion function again but pass in the function response to have OpenAI generate a new assistant response
         await this.completion(functionResponse, interactionCount, 'function', functionName);
       } else {
@@ -119,7 +119,7 @@ class GptService extends EventEmitter {
         partialResponse += content;
         // Emit last partial response and add complete response to userContext
         if (content.trim().slice(-1) === '•' || finishReason === 'stop') {
-          const gptReply = { 
+          const gptReply = {
             partialResponseIndex: this.partialResponseIndex,
             partialResponse
           };
@@ -130,7 +130,7 @@ class GptService extends EventEmitter {
         }
       }
     }
-    this.userContext.push({'role': 'assistant', 'content': completeResponse});
+    this.userContext.push({ 'role': 'assistant', 'content': completeResponse });
     console.log(`GPT -> user context length: ${this.userContext.length}`.green);
   }
 }
